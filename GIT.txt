@@ -1,0 +1,323 @@
+
+
+==========================================================================
+================GIT============================================
+git:-git is a open source, it's distributed version conctrol system (vcs) designed to handle evrything from small to very large projects with speed and efficiency.
+git have local repository,stage area,working area, global repository. ..> with out internet you can did half work..>means up to local repository.
+=====================================================
+to creat a instance (google or AWS)
+
+#sudo su -
+#apt-get update
+#apt-get install git-core -y
+
+
+...............................................
+::
+ :...> goto google,github,creat one account,                    :
+  ...> +, new repository,repository name,public select,         :
+          check box->initilise this repository with a README.   :...>creat one repository 
+           clone or download-->select & copy link               :     in Git hub, 
+
+
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+
+
+#git clone  <git hub link>
+                  :............> these link is copied by git hub.
+
+#ls
+#cd git-lab
+    .......
+      :............> this is repository name( this is created by github, and after clone shown in here.
+
+#ls
+#git add README.md 
+#git config --global user.name ssc11789
+#git config --global user.email ssc11789@gmail.com
+#
+#cd .git
+#cat config
+#cat .gitconfig
+
+#git commit -m "new code"
+#git push origin master
+
+===========to creat a file = and push to origin(git hub)============
+
+#vi demo.java
+#class demo
+ {
+p.s. void main(..)
+.......
+}
+
+press->esc->:wq and press enter button
+
+#git status
+#git add demo.java
+#git status
+#git commit -m "java code"
+#git push origin master .................> aks username 
+                        .................> password of git hub for conformation to push
+
+
+   :.........................> goto git hub and check , java file is in github
+
+
+++++++++----you want push files and all with out pass word asking-----++++++++++ 
+            ......................................................
+
+
+in this process generate key pair and copy public key(id-rsa.pub)
+from server to git hub 
+......settings-->deploy keys-->add deploykey-->paste copied public key(cat id-rsa.pub) -->allow write access.
+
+----->from putty 
+#cd
+#cd .ssh
+#ssh-keygen
+#ls
+#cat id-rsa.pub
+     :..................> copy this key and goto git hub an above process
+
+#ls
+#cd git-lab
+# git remote set-url origin git@github.com:ssc11789/git-lab.git  ....> this step is set to the with out password to pusu origin master from local repo
+++++++++-----------creat one dir and check with out password to pusg origin master-------+++++
+
+
+#vi sample.c
+ {
+void main(..)
+......
+}
+:wq
+#git add sample.c 
+#git commit -m "c-file"
+#mkdir MKDIR
+#git mv sample.c MKDIR/sample.c
+#ls
+#git commit -am "new dir"
+             :...............> am is at a time (add) and( commit) command
+
+#git push origin master
+         ..................> push the code with out asking password.
+
+
+        ============HOW TO RECOVER THE REMOVING FILE===============
+                    ................................
+
+#ls
+#git rm demo.java
+#ls
+#git status
+          :................> shows (deleted:demo.java)
+
+#git reset HEAD demo.java
+#ls
+#git checkout demo.java
+#ls
+
+#git status
+#git log             ........................>show total logs
+#git log demo.java   ........................>show perticular file log
+#git --oneline       ........................>get only commit id & message (show single line output)
+
+#git log --since 06-july-2018 --until 07-july-2018 ..>show logs in dates
+
+#git diff  b3bc327 01718cc         .........>diff bitween commit id
+           ....... .......
+              :       :..........>commit ID
+              :...................>commit ID
+
+
+#git log -p 01718cc
+            .......
+              :............>commit ID
+
+
+=========================HOW TO CREAT AND DELETE BRANCH============
+                         ..............................
+
+#git branch   .........>show total branches and master
+
+#git granch br1 .......> to creat branch (br1)
+
+#git branch  ..........> show total branches and master
+
+#git checkout branch ...> will movie to the from master to branch(br1 is green colour, before this step master is green colour)
+
+#vi index.html  ........> ti creat index.html file on branch(br1).
+ hello from 
+ git branch
+
+#git add index.html
+#git commit -m "html-code"
+#git push origin br1 ...........>to push file to branch(br1)
+#ls
+#git checkout master ...........> moves from br1 to master
+#ls
+
+
+-----to merge branch to master..
+
+#git merge br1 .....>br1 ni master ki megre cheyadam.
+#git push origin master ...> 
+#ls
+
+......(once code merge to remove the branch, and switch to master it shows index.html file)
+
+
+--------to delete branches.
+
+#git branch -d br1  ....> to delete in local branch after merging
+
+#git branch -D br1  ....> to delete in local branch before merging.
+
+#git push origin --delete br1  ....>to delete branch in remote repository.
+
+
+
+================================GIT STASH=====================
+
+GIT STASH MEANS IF YOU ARE WORKING IN ONE PROJECT(FILE), IN SUDDENLY YOU WANT TO WORK ANOTHER PROJECT(FILE),
+IN THAT TIME CURRENT WORKING PROJECT SAVE  TO STASH AREA AND (TAKE SECOND PROJECT AND IT WILL COMPLEATED AND PUSH TO ORIGION MASTER),
+AFTER COMPLETED SECOND PROJECT WE WILL TAKE FIRST PROJECT AND EXICUTE IT. 
+NOTE: ONCE TAKING TO THE PROJECT FROM STASH AREA, MUST STASH AREA CLEAN IT...> AFTER YOU WILL DO PROJECT AND COMPLEATE IT.
+
+#ls 
+#cd git_proj
+#
+#git status ...> shows any file in working area
+#ls
+#vi demo.java
+
+ class demo
+{
+ void addition()
+  {
+   A+B
+  }
+ void subtraction
+  {
+   A-B
+  }
+ p.s.void main()
+ .....
+ }
+
+#git add demo.java
+#git stash save "arith.operations"   .....> file will save to the stash area
+
+#git stash list .....> show the stash list
+
+#git status ...> show working area files ex:working area clean
+
+#vi demo.sh ...(cat demo.sh).....>the added code is not here it is in stash area
+
+   YOU CAN CREAT ANOTHER FILE AND ADD CODE THAT FILE.
+
+#vi index.html
+ HI NICE DAY
+ GOOD MORNING
+
+#git add index.html
+#git commit -m "add new file code"
+#git push origin master
+#git status ......> here this command uses clean inthis area
+
+#git stash list ....> shows the stash list (what you save in stash area)
+
+#git stash apply stash@{0} .....> stash area code will to stage area
+
+#git stash drop stash{0} .......> stash area stored code deleted.
+
+#git status
+
+#git add demo.sh
+#git add commit -m "new code bring stash area code"
+#git push origin master.
+#git stash list ...........> list will emplty
+#git status ...............> working and atage area will clean
+#git log    ...............> show local repo added code.
+
+
+success fully compleated ingit stash....logic
+.........................................................................................
+
+
+
+ 
+
+=>                ======================GIT REBASE====================
+
+THIS MOVIES THE ENTIRE FEATURE BRANCH TO BEGIN ON THE TOP OF THE MASTER BRANCH, REBASE CHESTE BRANCH CODE KUDA MASTER TOP LO JOIN AVTHADI, CHECK CHEYADANIKI LOG CHUSTAM.
+
+#ls
+#cd git_proj ..> enter in to the project,
+                 with out enter in to the project you won't any work possibility
+
+#git branch ...> shows masters and branch (here shows only master)
+#git branch bra2  ..> to creat a branch (mranch name is ...>bra)
+
+#git branch
+#git checkout bra2
+
+#git log --oneline
+
+#vi bank.java
+ {
+  class bank
+   {
+     void depost()
+   }
+ }
+
+
+#git add bank.java
+#git commit -m "deposit code"
+#git push origin bra2
+
+
+#vi bank.java
+ class bank()
+  {
+    void with draw
+   }
+
+#git add bank.java
+#git commit -m "withdraw"
+#git push origin bra2
+
+#git checkout master ...........> bra2 to master moving
+#ls
+git rebase bra2   ..............> bra2 code will move top of on master
+
+#git log --oneline
+ls
+
+
+========what is tag? 
+        tag is named snap shot.========
+
+
+#git log --oneline
+#git tag java_tag coabd2a ...> creat tag on java commit ID
+#git tag --list
+
+#git tag c_tag 8f9f4ba    ...> creat tag on c-file
+#git tag --list
+
+#git push origin java_tag 
+#git push origin c_tag  ....>push the code origin
+
+=====delete tags
+
+#git tag -d java_tag ...> to delete local repo tag
+
+#git push origin --delete java_tag   ...> to delete global repo tag.
+
+
+
+
