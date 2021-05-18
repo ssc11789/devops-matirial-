@@ -1,0 +1,52 @@
+FROM debian:latest
+MAINTAINER "Prasanna <nprasannakumar1994@gmail.com>"
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install build-essential curl git -y && \
+    apt-get install wget libssl-dev libncurses5-dev libnewt-dev  libxml2-dev linux-headers-$(uname -r) libsqlite3-dev uuid-dev -y && \
+    apt-get install libjansson-dev subversion -y && \
+    apt-get remove firewalld && \
+    apt-get update && \
+    apt-get install -y xz-utils devscripts cowbuilder git screen && \
+    apt-get update
+WORKDIR /usr/src
+RUN wget -O - https://files.freeswitch.org/repo/deb/freeswitch-1.8/fsstretch-archive-keyring.asc | apt-key add -
+RUN echo "deb http://files.freeswitch.org/repo/deb/freeswitch-1.8/ stretch main" > /etc/apt/sources.list.d/freeswitch.list
+RUN echo "deb-src http://files.freeswitch.org/repo/deb/freeswitch-1.8/ stretch main" >> /etc/apt/sources.list.d/freeswitch.list
+RUN apt-get update && \
+    apt-get build-dep freeswitch -y
+RUN git clone https://freeswitch.org/stash/scm/fs/freeswitch.git -bv1.8 freeswitch
+WORKDIR freeswitch/
+RUN git config pull.rebase true
+RUN ./bootstrap.sh -j
+RUN ./configure
+RUN make
+RUN make install
+RUN sed -i -r '28s/^#//;59s/^#//;122s/^#//;123s/^#//;162s/^#//;168s/^#//' modules.conf
+RUN make cd-sounds-install cd-moh-install
+WORKDIR /usr/local
+RUN groupadd freeswitch
+RUN adduser --quiet --system --home /usr/local/freeswitch --gecos "FreeSWITCH open source softswitch" --ingroup freeswitch freeswitch --disabled-password
+RUN chown -R freeswitch:freeswitch /usr/local/freeswitch/
+RUN chmod -R ug=rwX,o= /usr/local/freeswitch/
+RUN chmod -R u=rwx,g=rx /usr/local/freeswitch/bin/*
+RUN sed -i '/Wants/s/^/;/g' /usr/src/freeswitch/debian/freeswitch-systemd.freeswitch.service
+RUN sed -i '/Requires/s/^/;/g' /usr/src/freeswitch/debian/freeswitch-systemd.freeswitch.service
+RUN sed -ie 's/^After=.*/After=syslog.target network.target local-fs.target/' /usr/src/freeswitch/debian/freeswitch-systemd.freeswitch.service
+RUN sed -ie 's/^PIDFile=.*/PIDFile=\/usr\/local\/freeswitch\/run\/freeswitch.pid/' /usr/src/freeswitch/debian/freeswitch-systemd.freeswitch.service
+RUN sed '12 a PermissionsStartOnly=true' /usr/src/freeswitch/debian/freeswitch-systemd.freeswitch.service
+RUN sed -i '/ExecStartPre/s/^/;/g' /usr/src/freeswitch/debian/freeswitch-systemd.freeswitch.service
+RUN sed '15 a ExecStart=' /usr/src/freeswitch/debian/freeswitch-systemd.freeswitch.service
+RUN sed -ie 's/^ExecStart=.*/ExecStart=\/usr\/local\/freeswitch\/bin\/freeswitch -u freeswitch -g freeswitch -ncwait -nonat -rp/' /usr/src/freeswitch/debian/freeswitch-systemd.freeswitch.service
+RUN sed -ie 's/^Restart=.*/Restart=on-failure/' /usr/src/freeswitch/debian/freeswitch-systemd.freeswitch.service
+RUN sed '19 a WorkingDirectory=/usr/local/freeswitch/bin' /usr/src/freeswitch/debian/freeswitch-systemd.freeswitch.service
+RUN sed -i '/LimitSTACK/s/^/;/g' /usr/src/freeswitch/debian/freeswitch-systemd.freeswitch.service
+# Healthcheck to make sure the service is running
+SHELL       ["/bin/bash"]
+HEALTHCHECK --interval=15s --timeout=5s \
+    CMD  fs_cli -x status | grep -q ^UP || exit 1
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+
+CMD ["freeswitch"]
